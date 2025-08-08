@@ -1,31 +1,31 @@
 -- schema.sql
--- Creates the tables needed for the Employee Payroll System
 
--- Drop tables if they already exist (for resetting the DB)
-DROP TABLE IF EXISTS payroll;
-DROP TABLE IF EXISTS employee;
-DROP TABLE IF EXISTS users;
-
--- Table to store user login credentials
+-- Users table for authentication
 CREATE TABLE users (
-    username VARCHAR(50) PRIMARY KEY,
-    password_hash VARCHAR(255) NOT NULL
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'user'
 );
 
--- Table to store employee details
-CREATE TABLE employee (
+
+-- Employees table
+CREATE TABLE employees (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    position VARCHAR(50),
-    department VARCHAR(50)
+    position VARCHAR(100),
+    department VARCHAR(100),
+    salary NUMERIC(10, 2)
 );
 
--- Table to store payroll records
-CREATE TABLE payroll (
+-- Payroll table
+CREATE TABLE payrolls (
     id SERIAL PRIMARY KEY,
-    employee_id INT NOT NULL,
-    amount NUMERIC(10, 2) NOT NULL,
+    employee_id INT REFERENCES employees(id) ON DELETE CASCADE,
     pay_date DATE NOT NULL,
-    FOREIGN KEY (employee_id) REFERENCES employee(id) ON DELETE CASCADE
+    amount NUMERIC(10, 2) NOT NULL
 );
 
+-- Example: Insert an admin user (password: 'admin123' hashed with SHA-256)
+INSERT INTO users (username, password) VALUES
+('admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9');

@@ -1,82 +1,92 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * LoginScreen.java
  * 
- * A simple login screen for the Employee Payroll System.
- * Connects directly to the database and checks username/password in plain text.
- * (⚠ Storing plain text passwords is NOT secure — for demo purposes only.)
+ * Provides the login UI for the payroll system.
+ * Allows users to enter their username and password to log in.
+ * Also provides a button to register a new account.
  */
 public class LoginScreen extends JFrame {
 
-    // UI components
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JButton loginButton;
 
     public LoginScreen() {
-        setTitle("Employee Payroll System - Login");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("Login");
         setSize(350, 200);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(3, 2, 10, 10));
 
-        // Create and add components
-        add(new JLabel("Username:"));
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+
+        // Username
+        panel.add(new JLabel("Username:"));
         usernameField = new JTextField();
-        add(usernameField);
+        panel.add(usernameField);
 
-        add(new JLabel("Password:"));
+        // Password
+        panel.add(new JLabel("Password:"));
         passwordField = new JPasswordField();
-        add(passwordField);
+        panel.add(passwordField);
 
-        loginButton = new JButton("Login");
-        add(loginButton);
+        // Login Button
+        JButton loginBtn = new JButton("Login");
+        loginBtn.addActionListener(e -> loginUser());
+        panel.add(loginBtn);
 
-        // Blank placeholder to balance the grid
-        add(new JLabel(""));
+        // Register Button
+        JButton registerBtn = new JButton("Register");
+        registerBtn.addActionListener(e -> {
+            dispose();
+            new RegisterScreen().setVisible(true);
+        });
+        panel.add(registerBtn);
 
-        // Handle login button click
-        loginButton.addActionListener(e -> handleLogin());
-
-        setVisible(true);
+        add(panel, BorderLayout.CENTER);
     }
 
     /**
-     * Checks if the entered username/password match a record in the database.
+     * Checks credentials and logs in the user.
      */
-    private void handleLogin() {
-        String username = usernameField.getText();
+    private void loginUser() {
+        String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
 
-        // Basic validation
         if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter username and password.");
+            JOptionPane.showMessageDialog(this, "Please enter both username and password.");
             return;
         }
 
-        // Query the database
         try (Connection conn = DBConnection.getConnection()) {
-            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, username);
-            stmt.setString(2, password);
+            if (conn != null) {
+                String sql = "SELECT password FROM users WHERE username = ?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, username);
+                ResultSet rs = stmt.executeQuery();
 
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                JOptionPane.showMessageDialog(this, "Login successful!");
-                dispose(); // Close login window
-                new Dashboard(); // Open dashboard
+                if (rs.next()) {
+                    String storedHash = rs.getString("password");
+                    if (HashUtil.checkPassword(password, storedHash)) {
+                        JOptionPane.showMessageDialog(this, "Login successful!");
+                        dispose();
+                        new Dashboard(username).setVisible(true);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Invalid username or password.");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "User not found.");
+                }
             } else {
-                JOptionPane.showMessageDialog(this, "Invalid username or password.");
+                JOptionPane.showMessageDialog(this, "Database connection failed.");
             }
-
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
     }
 }

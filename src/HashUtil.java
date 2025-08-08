@@ -1,34 +1,29 @@
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * HashUtil.java
- * 
- * Utility class to hash passwords using SHA-256.
- */
 public class HashUtil {
 
-    /**
-     * Hashes a given password using SHA-256.
-     *
-     * @param password The plain text password
-     * @return The hashed password as a hexadecimal string
-     */
+    // Hash the password using SHA-256
     public static String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = md.digest(password.getBytes());
-
-            // Convert byte array into hex string
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) {
-                sb.append(String.format("%02x", b));
+            byte[] hash = md.digest(password.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
             }
-
-            return sb.toString();
-
+            return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error hashing password", e);
+            e.printStackTrace();
+            return null;
         }
+    }
+
+    // Compare a plain password with a stored hashed password
+    public static boolean checkPassword(String plainPassword, String hashedPassword) {
+        String hashedInput = hashPassword(plainPassword);
+        return hashedInput != null && hashedInput.equals(hashedPassword);
     }
 }

@@ -4,8 +4,8 @@ import java.awt.*;
 /**
  * Dashboard.java
  * 
- * This class represents the main menu screen shown after a successful login.
- * It provides buttons to navigate to other parts of the payroll system:
+ * Main menu screen shown after successful login.
+ * Provides navigation to:
  * - Add Employee
  * - Add Payroll
  * - View Employees
@@ -16,81 +16,54 @@ public class Dashboard extends JFrame {
 
     /**
      * Constructor for Dashboard
-     * @param username the name of the user who logged in
+     * @param username The name of the logged-in user
      */
     public Dashboard(String username) {
-        // Set the window title to show logged-in user
+        // Set up window title and size
         setTitle("Dashboard - Logged in as " + username);
-
-        // Define window size
         setSize(400, 300);
-
-        // Close the app when the window is closed
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); // Center window
 
-        // Center the window on screen
-        setLocationRelativeTo(null);
+        // Create button panel with vertical layout
+        JPanel panel = new JPanel(new GridLayout(5, 1, 10, 10));
 
-        // Create a panel to hold the buttons
-        JPanel panel = new JPanel();
-
-        // Arrange buttons in a grid layout (5 rows, 1 column)
-        panel.setLayout(new GridLayout(5, 1, 10, 10));
-
-        // ------------------ Add Employee Button ------------------
+        // ------------------ Add Employee ------------------
         JButton addEmployeeBtn = new JButton("Add Employee");
-        addEmployeeBtn.addActionListener(e -> {
-            // Open the AddEmployee window
-            new AddEmployee().setVisible(true);
-        });
+        addEmployeeBtn.addActionListener(e -> new AddEmployee().setVisible(true));
         panel.add(addEmployeeBtn);
 
-        // ------------------ Add Payroll Button -------------------
+        // ------------------ Add Payroll -------------------
         JButton addPayrollBtn = new JButton("Add Payroll");
-        addPayrollBtn.addActionListener(e -> {
-            // Open the AddPayroll window
-            new AddPayroll().setVisible(true);
-        });
+        addPayrollBtn.addActionListener(e -> new AddPayroll().setVisible(true));
         panel.add(addPayrollBtn);
 
-        // ------------------ View Employees Button ----------------
+        // ------------------ View Employees ----------------
         JButton viewEmployeesBtn = new JButton("View Employees");
-        viewEmployeesBtn.addActionListener(e -> {
-            // Open the ViewEmployees window
-            new ViewEmployees().setVisible(true);
-        });
+        viewEmployeesBtn.addActionListener(e -> new ViewEmployees().setVisible(true));
         panel.add(viewEmployeesBtn);
 
-        // ------------------ View Payrolls Button -----------------
+        // ------------------ View Payrolls -----------------
         JButton viewPayrollsBtn = new JButton("View Payrolls");
-        viewPayrollsBtn.addActionListener(e -> {
-            // Open the ViewPayrolls window
-            new ViewPayrolls().setVisible(true);
-        });
+        viewPayrollsBtn.addActionListener(e -> new ViewPayrolls().setVisible(true));
         panel.add(viewPayrollsBtn);
 
-        // ------------------ Logout Button ------------------------
+        // ------------------ Logout ------------------------
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.addActionListener(e -> {
-            // Close dashboard
-            dispose();
-            // Show login screen again
-            new LoginScreen().setVisible(true);
+            dispose(); // Close dashboard
+            new LoginScreen().setVisible(true); // Return to login
         });
         panel.add(logoutBtn);
 
-        // Add panel with buttons to the center of the frame
+        // Add panel to frame
         add(panel, BorderLayout.CENTER);
     }
 
     /**
-     * Main method for standalone testing
-     * Opens the dashboard directly with a test user.
+     * Standalone test entry point
      */
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new Dashboard("admin").setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new Dashboard("admin").setVisible(true));
     }
 }
- 

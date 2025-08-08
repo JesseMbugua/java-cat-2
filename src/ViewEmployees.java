@@ -9,7 +9,7 @@ import java.sql.Statement;
 /**
  * ViewEmployees.java
  *
- * Displays all employees in a JTable by fetching records from the Employee table.
+ * Displays all employees in a JTable by fetching records from the employees table.
  */
 public class ViewEmployees extends JFrame {
 
@@ -26,7 +26,7 @@ public class ViewEmployees extends JFrame {
         setLocationRelativeTo(null); // Center on screen
 
         // Column names for the table
-        String[] columnNames = {"ID", "Name", "Position", "Department"};
+        String[] columnNames = {"ID", "Name", "Position", "Department", "Salary"};
 
         // Table model (non-editable cells)
         tableModel = new DefaultTableModel(columnNames, 0) {
@@ -53,7 +53,7 @@ public class ViewEmployees extends JFrame {
      * Loads employee data from the database into the JTable
      */
     private void loadEmployeeData() {
-        String sql = "SELECT id, name, position, department FROM employee";
+        String sql = "SELECT id, name, position, department, salary FROM employees"; // ✅ fixed table name
 
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -68,8 +68,9 @@ public class ViewEmployees extends JFrame {
                 String name = rs.getString("name");
                 String position = rs.getString("position");
                 String department = rs.getString("department");
+                double salary = rs.getDouble("salary");
 
-                tableModel.addRow(new Object[]{id, name, position, department});
+                tableModel.addRow(new Object[]{id, name, position, department, salary});
             }
 
         } catch (SQLException ex) {

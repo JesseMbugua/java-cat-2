@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-/** 
+/**
  * This class provides a form to add new employees to the Employee table.
  * It connects to the database and inserts the entered data when the user clicks "Save".
  */
@@ -13,6 +13,7 @@ public class AddEmployee extends JFrame {
     // UI Components
     private JTextField nameField;
     private JTextField positionField;
+    private JTextField departmentField;
     private JTextField salaryField;
 
     /**
@@ -20,12 +21,12 @@ public class AddEmployee extends JFrame {
      */
     public AddEmployee() {
         setTitle("Add Employee");
-        setSize(350, 250);
+        setSize(350, 300);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Close only this window
         setLocationRelativeTo(null); // Center on screen
 
         // Create form panel with labels and text fields
-        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
 
         // ------------------ Name ------------------
         panel.add(new JLabel("Name:"));
@@ -36,6 +37,11 @@ public class AddEmployee extends JFrame {
         panel.add(new JLabel("Position:"));
         positionField = new JTextField();
         panel.add(positionField);
+
+        // ------------------ Department ------------------
+        panel.add(new JLabel("Department:"));
+        departmentField = new JTextField();
+        panel.add(departmentField);
 
         // ------------------ Salary ------------------
         panel.add(new JLabel("Salary:"));
@@ -62,10 +68,11 @@ public class AddEmployee extends JFrame {
     private void saveEmployee() {
         String name = nameField.getText().trim();
         String position = positionField.getText().trim();
+        String department = departmentField.getText().trim();
         String salaryText = salaryField.getText().trim();
 
         // Basic validation
-        if (name.isEmpty() || position.isEmpty() || salaryText.isEmpty()) {
+        if (name.isEmpty() || position.isEmpty() || department.isEmpty() || salaryText.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill all fields.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -74,7 +81,7 @@ public class AddEmployee extends JFrame {
             double salary = Double.parseDouble(salaryText);
 
             // SQL to insert employee record
-            String sql = "INSERT INTO employees (name, position, salary) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO employees (name, position, department, salary) VALUES (?, ?, ?, ?)";
 
             // Try-with-resources ensures connection closes automatically
             try (Connection conn = DBConnection.getConnection();
@@ -83,7 +90,8 @@ public class AddEmployee extends JFrame {
                 // Set the parameter values
                 stmt.setString(1, name);
                 stmt.setString(2, position);
-                stmt.setDouble(3, salary);
+                stmt.setString(3, department);
+                stmt.setDouble(4, salary);
 
                 // Execute the insert
                 stmt.executeUpdate();
@@ -109,4 +117,3 @@ public class AddEmployee extends JFrame {
         });
     }
 }
-   
